@@ -14,12 +14,14 @@ int main()
 
     cout << "What dash size are you looking for?\n";
     cin >> search;
+    search = "-"+search;
 
     if (referenceOne.is_open() ) {
         while( getline(referenceOne, line) ){ //pulls in one line from as568.txt
             pos = line.find(search); //search for
             if(pos!=string::npos){
                 cout << line;
+            referenceOne.close();
             }
         }
         referenceOne.close();
