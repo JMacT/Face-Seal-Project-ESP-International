@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void Variable_Assigner(string source, char matrix[][]);
+void Variable_Assigner(string source);
 
 
 
@@ -13,8 +13,11 @@ void Variable_Assigner(string source, char matrix[][]);
 int main()
 {
     string search;
+    string storage[8]={};
+    string temp;
     string line;
-    char var_Matrix[9][5];
+    char var;
+    int i, j=0;
 
 
     ifstream referenceOne;
@@ -28,9 +31,38 @@ int main()
     if (referenceOne.is_open() ) {
         while( getline(referenceOne, line) ){ //line.string = (entire) as568.txt
             pos = line.find(search); //line.string now = the correct dash size entry
+
             if(pos!=string::npos){
 
-                Variable_Assigner(line, var_Matrix); //sort information into the matrix
+                cout << line << endl;
+
+                    for(i=0;i<50;i++){
+
+                        if (line[i]=='\t'){
+
+                            storage[j]=temp;
+                            temp.clear();
+                            j++;
+
+                            if(j==9){
+                                i=50; //exit if all the dimensions are full
+                            }
+
+                        }
+
+                        else{
+                            temp = temp + line[i];
+                            //cout << temp <<endl;
+                        }
+
+                    }
+
+                    for(i=0;i<9; i++){
+                        cout<<storage[i];
+                        cout << endl;
+                    }
+
+                //Variable_Assigner(line); //sort information into the matrix
 
             }
         }
@@ -41,17 +73,34 @@ int main()
     return 0;
 }
 
-void Variable_Assigner(string source, char matrix[][]){ //matrix is set up FOR 9 DIMENSIONS TYPES with 5 characters for DATA.DATA [9][5]
+void Variable_Assigner(string source){ //matrix is set up FOR 9 DIMENSIONS TYPES with 5 characters for DATA.DATA [9][5]
     int i,j = 0;
-    int k = -1;
-    for(i=0;i<70;i++){
-        k++;
+    string storage[9]={0};
+    string temp;
 
-        if(source[i]=='\t'){
-            k++;
+    cout << source;
+/*
+    for(i=0;i<50;i++){
+        if (source[i]=='\t'){
+            storage[j]=temp;
+            j++;
+
+            if(j==8){
+                i=50; //exit if all the dimensions are full
+            }
+
         }
+
         else{
-            matrix[j][k] = source [i];
+            //temp = temp + source[i];
+            cout << temp <<endl;
         }
-    }
+
+    }*/
+
+   /* for(i=0;storage[i][0]!='\0'; i++){
+        for(j=0;storage[i][j]!='\0';j++){
+            cout << storage[i][j];
+        }
+    }*/
 };
