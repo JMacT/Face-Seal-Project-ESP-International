@@ -13,7 +13,7 @@ void Variable_Assigner(string source);
 int main()
 {
     string search;
-    string storage[8]={};
+    string storage[9]={};
     string temp;
     string line;
     char var;
@@ -36,7 +36,7 @@ int main()
 
                 cout << line << endl;
 
-                    for(i=0;i<50;i++){
+                    for(i=0;i<500;i++){
 
                         if (line[i]=='\t'){
 
@@ -45,7 +45,7 @@ int main()
                             j++;
 
                             if(j==9){
-                                i=50; //exit if all the dimensions are full
+                                i=500; //exit if all the dimensions are full
                             }
 
                         }
