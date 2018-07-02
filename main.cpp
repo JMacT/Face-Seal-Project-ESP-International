@@ -1,11 +1,8 @@
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <sstream>
 #include <stdlib.h>
-#include <cstring> //strlen
+#include <string>
 #include <math.h> //pow
-#define SIZE 9
 
 using namespace std;
 
@@ -16,16 +13,16 @@ float dash_Query(string as568); //search as568.txt for an oring size and output 
 int main()
 {
     string search; //Holds dash size required for the search
-    float hardware[8]={0}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol
+    float hardware[9]={0}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
 
 
     hardware_specs(hardware);
 
     cout << "What dash size do you THINK will work?\n"; //choose a dash size
     cin >> search;
-    search = "-"+search; //Adds the dash in order to search as568.txt
+    search = "-" + search; //Adds the dash in order to search as568.txt
 
-    cout << dash_Query(search) << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
+    cout << "The dash size to be analyzed is : " << dash_Query(search) << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
 
     return 0;
 }
@@ -51,13 +48,24 @@ void hardware_specs(float input_arr []){
 
     cout << "Enter 0 for METRIC measurements or enter 1 for IMERIAL measurements" << endl;
     cin >> input_arr[0];
+    if((input_arr[0]!=0) || (input_arr[0]!=0)){
+        cout << "Illegal entry, defaulting to METRIC\n";
+        input_arr[0]=0;
+    }
 
     cout << "Enter 0 for sealing a LIQUID, enter 1 for sealing a GAS" << endl;
     cin >> input_arr[1];
+    if((input_arr[1]!=0) || (input_arr[1]!=0)){
+        cout << "Illegal entry, defaulting to LIQUID MEDIA\n";
+        input_arr[0]=0;
+    }
 
     cout << "Enter 0 for INTERNAL PRESSURE or enter 1 for EXTERNAL PRESSURE " << endl;
     cin >> input_arr[2];
-
+    if((input_arr[2]!=0) || (input_arr[2]!=0)){
+        cout << "Illegal entry, defaulting to INTERNAL PRESSURE\n";
+        input_arr[0]=0;
+    }
     cout << "Enter your gland INNER DIAMETER" << endl;
     cin >> input_arr[3];
 
@@ -82,15 +90,15 @@ void hardware_specs(float input_arr []){
 
 float dash_Query(string as568){
 
-    ifstream refOne;
-    refOne.open ("as568.txt"); //Opening as568.txt as reference one
-
     string storage[9]={}; //Holds only pertinent characters read from string "line"
     string temp; //Used to fill storage and exit loop in case of \t in string "line"
     string line; //Holds info from as568.txt
     float dimTol[8] = {0}; //stof directly from the string "storage" indexed by i
     size_t pos;
     int i, j=0; //counters
+
+    ifstream refOne;
+    refOne.open ("as568.txt"); //Opening as568.txt as reference one
 
     //Opens as568.txt and copies relevant dash size line to "line" string
     while( getline(refOne, line) ){ //line.string = (entire) as568.txt
@@ -107,7 +115,7 @@ float dash_Query(string as568){
                     if (line[i]=='\t'){
 
                         dimTol[j] = stof(temp);
-                        cout << "this is dimTol at index " << j << " : " << dimTol[j] << endl;
+                        //cout << "this is dimTol at index " << j << " : " << dimTol[j] << endl;
                         temp.clear();
                         j++;
 
