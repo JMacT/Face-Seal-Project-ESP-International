@@ -27,23 +27,22 @@ int main()
     //as568[7] : ID mm
     //as568[8] : ID Tol mm
 
-    float hardware[9]={0}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
-    float CS_array[]={0.040, 0.050, 0.060, 0.070, 0.103, 0.139, 0.210, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
-                //NOTE: Cannot judge the following CS sizes (2-9xxs) because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
+    float hardware[9]={0,0,0,1,.05,2,.05,1,.0}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
+    float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
+                //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
-    hardware_specs(hardware);
-    cout << hardware[2] << endl;//OD tol
+    //hardware_specs(hardware);//temporarily hardcoding
 
-    //CS_Test(hardware, CS_array);
+    CS_Test(hardware, CS_array);
 
-    cout << "Which dash size do you want analyzed\n"; //choose a dash size
-    cin >> search;
+    //cout << "Which dash size do you want analyzed\n"; //choose a dash size
+    //cin >> search;
 
-    search = "-" + search; //Adds the dash in order to search as568.txt
+    //search = "-" + search; //Adds the dash in order to search as568.txt
 
-    as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
+    //as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
 
-    cout << "The dash size to be analyzed is : " << as568[0] << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
+    //cout << "The dash size to be analyzed is : " << as568[0] << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
 
     return 0;
 }
@@ -105,21 +104,21 @@ void hardware_specs(float input_arr []){
 
     cout << "Enter 0 for METRIC measurements or enter 1 for IMERIAL measurements" << endl;
     cin >> input_arr[0];
-    if((input_arr[0]!=0) || (input_arr[0]!=0)){
+    if( (input_arr[0]!=1) && (input_arr[0]!=0)){
         cout << "Illegal entry, defaulting to METRIC\n";
         input_arr[0]=0;
     }
 
     cout << "Enter 0 for sealing a LIQUID, enter 1 for sealing a GAS" << endl;
     cin >> input_arr[1];
-    if((input_arr[1]!=0) || (input_arr[1]!=0)){
+    if((input_arr[1]!=0) && (input_arr[1]!=1)){
         cout << "Illegal entry, defaulting to LIQUID MEDIA\n";
         input_arr[0]=0;
     }
 
     cout << "Enter 0 for INTERNAL PRESSURE or enter 1 for EXTERNAL PRESSURE " << endl;
     cin >> input_arr[2];
-    if((input_arr[2]!=0) || (input_arr[2]!=0)){
+    if((input_arr[2]!=0) && (input_arr[2]!=1)){
         cout << "Illegal entry, defaulting to INTERNAL PRESSURE\n";
         input_arr[0]=0;
     }
@@ -149,20 +148,67 @@ CS_Test
 Inputs: the customer's hardware in array format, the array of available cross-sections (hard-coded from as568 reference material)
 Function: Test the available cross-sections in the customer's hardware and see which are viable options
 Results: The array of available cross sections is left without those that will not work
+Working? So far, parker_Recs is filling up correctly
 */
 void CS_Test(float hardware[], float CS_array[]){
-    float G_actual_max, L_actual;
+    /*Format of hardware[]:
+    0. Metric (0) or Imperial Measurements (1)
+    1. Pressure Direction: Internal pressure (0) or External Pressure (1)
+    2. Media: Liquid (0) or Gas (1)
+    3. ID
+    4. ID Tolerance
+    5. OD
+    6. OD Tolerance
+    7. Maximum gland depth allowable
+    8. Gland cut tolerance*/
+
+    //Gameplan:
+    //Basically, get gland depth min and max from hardware
+    //get groove width min and max from hardware
+    //get the recommendations min and max using hardware metric/imperial, internal/external_p, liquid/gas
+    //compare and exclude some of CS_array
+
+
+    float G_hardware_max,G_hardware_min, L_hardware_max = 0;
     string line;
     string temp;
-    //string search;
+    int width=10;
+    int exit_var=8;
+    static float parker_Recs[10];
+    int i =0;
+    size_t pos;
 
+    //error catcher
+    if(hardware[3] >= hardware[5]){
+        cout << "There was an error in your entry. Make sure your OD is larger than your ID" << endl;
+        return;
+    }
+
+    //Gland width, G_max [(maximum OD)-(minimum ID)]/2
+    G_hardware_max = ((hardware[5]+hardware[6])-(hardware[3]-hardware[4]))/2;
+    G_hardware_min = ((hardware[5]-hardware[6])-(hardware[3]+hardware[4]))/2;
+    L_hardware_max = hardware[7]+hardware[8]; //This is the absolute deepest the customer can cut.
+    //Minimum gland depths are dealt with in the analysis ??? CHECK THIS
 
     ifstream refTwo;
     refTwo.open("Parker Oring Face Seal Design Chart 4-3.txt"); // opens the face seal design recommendations .txt file
 
+    //hard coding loop for the 8 cross sections being analyzed
+    for(i=0; i < width; i++ ){
 
+        temp = to_string(CS_array[i]); //make the float into the seven sigfig string for searching
 
-    refTwo.close(); //closes the file
+            while( getline(refTwo, line) ){ //line string = (entire) parker recommendations .txt
+
+                pos = line.find(temp); //position, pos is equal to where "-1" was found in line.
+
+                if(pos!=string::npos){ //execute if the string is not-not found
+
+                    string_to_float_array(line, parker_Recs, width, exit_var); //fill dimTol with floats of all the dash data
+                }
+
+            }
+    }
 
     return;
 };
@@ -189,9 +235,9 @@ float * dash_Query(string as568){
 
     //Opens as568.txt and copies relevant dash size line to "line" string
     while( getline(refOne, line) ){ //line.string = (entire) as568.txt
+
         pos = line.find(as568); //line.string now = the correct dash size entry
 
-        //string_to_float_array(line, dimTol, width, exit_var);
         if(pos!=string::npos){
 
             cout << line << endl; //Debug -- look at data is in "line" string.
