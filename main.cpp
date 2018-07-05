@@ -27,7 +27,7 @@ int main()
     //as568[7] : ID mm
     //as568[8] : ID Tol mm
 
-    float hardware[9]={1,0,0,1,.05,2,.05,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
+    float hardware[9]={1,0,0,1.0,.0,1.370,.0,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
     float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
                 //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
@@ -171,7 +171,6 @@ void CS_Test(float hardware[], float CS_array[]){
 
     float G_Recommended_min, G_Recommended_max, G_hardware_max,G_hardware_min, L_hardware_max = 0;
     string line;
-    string temp;
     float squeeze[2]={0}; //squeeze[0] = min, squeeze[1]=max;
     int width=10;
     int exit_var=5; //Only check the 5 existing cross sections
@@ -193,6 +192,10 @@ void CS_Test(float hardware[], float CS_array[]){
     L_hardware_max = hardware[7]+hardware[8]; //This is the absolute deepest the customer can cut. Compare to parker_Recs[2]
     //Minimum gland depths are dealt with in the analysis ??? CHECK THIS
 
+    cout << "Hardware gland width maximum is : " << G_hardware_max << endl;
+    cout << "Hardware gland width minimum is : " << G_hardware_min<< endl;
+    cout << "Hardware gland depth maximum is : " << L_hardware_max << endl;
+
    /* 0. Metric (0) or Imperial Measurements (1)
 1. Pressure Direction: Internal pressure (0) or External Pressure (1)
 2. Media: Liquid (0) or Gas (1)
@@ -206,14 +209,19 @@ void CS_Test(float hardware[], float CS_array[]){
     ifstream refTwo;
     refTwo.open("Parker Oring Face Seal Design Chart 4-3.txt"); // opens the face seal design recommendations .txt file
 
-    //hard coding loop for the 8 cross sections being analyzed
+    //Looping through the CSs available
     for(i=0; i < width; i++ ){
 
-        temp = to_string(CS_array[i]); //make the float into the seven sigfig string for searching
+        //refTwo.open("Parker Oring Face Seal Design Chart 4-3.txt");
+        refTwo.clear();
+        refTwo.seekg(0,ios::beg);
 
             while( getline(refTwo, line) ){ //line string = (entire) parker recommendations .txt
 
-                pos = line.find(temp); //position, pos is equal to where CS_array[0] (the cross section) was found in line.
+                //search for the seven sigfig float version of CS_array[i]
+                pos = line.find(to_string(CS_array[i])); //position, pos is equal to where CS_array[0] (the cross section) was found in line.
+
+                refTwo.clear(); //start searching again from the beginning of the file next time
 
                 if(pos!=string::npos){ //execute if the string is not-not found
 
@@ -233,26 +241,27 @@ void CS_Test(float hardware[], float CS_array[]){
                     }
 
                     report = CS_array[i];
-
                     //Checking hardware vs recommendations
                     if( L_hardware_max < parker_Recs[2] ){ //If the hardware is not jiving with the recommendations
                         CS_array[i] = NULL; //Get rid of the C/S that did not fit
                         CS_Counter++; //if all available cross sections are exhausted, recommend a custom size.
                         cout << "The problem with the " << report << " cross section was the maximum groove depth.\n";
                     }
-                    if( (G_hardware_min > G_Recommended_max) ){ //If the hardware is not jiving with the recommendations
+                    else if( (G_hardware_min < G_Recommended_min) ){ //If the hardware is not jiving with the recommendations
                         CS_array[i] = NULL; //Get rid of the C/S that did not fit
                         CS_Counter++; //if all available cross sections are exhausted, recommend a custom size.
                         cout << "The problem with the " << report << " cross section was the gland diameter was too big\n";
                     }
-                    if( (G_hardware_max < G_Recommended_min) ){ //If the hardware is not jiving with the recommendations
+                    else if( (G_hardware_max > G_Recommended_max) ){ //If the hardware is not jiving with the recommendations
                         CS_array[i] = NULL; //Get rid of the C/S that did not fit
                         CS_Counter++; //if all available cross sections are exhausted, recommend a custom size.
                         cout << "The problem with the " << report << " cross section was the gland diameter was too small\n";
                     }
+                    else{
+                        cout << "The correct cross section is : " << CS_array[i] << endl;
+                    }
 
                 }
-
             }
 
             if(CS_Counter > 4){
