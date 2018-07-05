@@ -10,7 +10,7 @@ void hardware_specs(float input_arr [] ); //cin customer hardeware specs. Output
 float * dash_Query(string as568); //search as568.txt for an oring size and output an array of those specs
 void CS_Test(float*, float*);
 void string_to_float_array(string, float*, int, int);
-
+void convert_To_Metric(float*);
 
 int main()
 {
@@ -27,7 +27,7 @@ int main()
     //as568[7] : ID mm
     //as568[8] : ID Tol mm
 
-    float hardware[9]={0,0,0,1,.05,2,.05,1,.0}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
+    float hardware[9]={1,0,0,1,.05,2,.05,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
     float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
                 //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
@@ -169,13 +169,16 @@ void CS_Test(float hardware[], float CS_array[]){
     //compare and exclude some of CS_array
 
 
-    float G_hardware_max,G_hardware_min, L_hardware_max = 0;
+    float G_Recommended_min, G_Recommended_max, G_hardware_max,G_hardware_min, L_hardware_max = 0;
     string line;
     string temp;
+    float squeeze[2]={0}; //squeeze[0] = min, squeeze[1]=max;
     int width=10;
-    int exit_var=8;
+    int exit_var=5; //Only check the 5 existing cross sections
+    int CS_Counter = 0;
     static float parker_Recs[10];
-    int i =0;
+    float report = 0; //saves the cross section size for the cout report.
+    int i, j =0;
     size_t pos;
 
     //error catcher
@@ -187,8 +190,18 @@ void CS_Test(float hardware[], float CS_array[]){
     //Gland width, G_max [(maximum OD)-(minimum ID)]/2
     G_hardware_max = ((hardware[5]+hardware[6])-(hardware[3]-hardware[4]))/2;
     G_hardware_min = ((hardware[5]-hardware[6])-(hardware[3]+hardware[4]))/2;
-    L_hardware_max = hardware[7]+hardware[8]; //This is the absolute deepest the customer can cut.
+    L_hardware_max = hardware[7]+hardware[8]; //This is the absolute deepest the customer can cut. Compare to parker_Recs[2]
     //Minimum gland depths are dealt with in the analysis ??? CHECK THIS
+
+   /* 0. Metric (0) or Imperial Measurements (1)
+1. Pressure Direction: Internal pressure (0) or External Pressure (1)
+2. Media: Liquid (0) or Gas (1)
+3. ID
+4. ID Tolerance
+5. OD
+6. OD Tolerance
+7. Maximum gland depth allowable
+8. Gland cut tolerance*/
 
     ifstream refTwo;
     refTwo.open("Parker Oring Face Seal Design Chart 4-3.txt"); // opens the face seal design recommendations .txt file
@@ -200,19 +213,61 @@ void CS_Test(float hardware[], float CS_array[]){
 
             while( getline(refTwo, line) ){ //line string = (entire) parker recommendations .txt
 
-                pos = line.find(temp); //position, pos is equal to where "-1" was found in line.
+                pos = line.find(temp); //position, pos is equal to where CS_array[0] (the cross section) was found in line.
 
                 if(pos!=string::npos){ //execute if the string is not-not found
 
-                    string_to_float_array(line, parker_Recs, width, exit_var); //fill dimTol with floats of all the dash data
+                    string_to_float_array(line, parker_Recs, width, exit_var); //fill parker_Recs with floats of all the dash data
+
+                    if(hardware[0] == 0){
+                        convert_To_Metric(parker_Recs); //convert the inch recommendations to mm if necessary
+                    }
+
+                    if(hardware[2]==0){ //use gland widths for liquids
+                        G_Recommended_min = parker_Recs[6];
+                        G_Recommended_max = parker_Recs[7];
+                    }
+                    else{ //use gland widths for gases
+                        G_Recommended_min = parker_Recs[8];
+                        G_Recommended_max = parker_Recs[9];
+                    }
+
+                    report = CS_array[i];
+
+                    //Checking hardware vs recommendations
+                    if( L_hardware_max < parker_Recs[2] ){ //If the hardware is not jiving with the recommendations
+                        CS_array[i] = NULL; //Get rid of the C/S that did not fit
+                        CS_Counter++; //if all available cross sections are exhausted, recommend a custom size.
+                        cout << "The problem with the " << report << " cross section was the maximum groove depth.\n";
+                    }
+                    if( (G_hardware_min > G_Recommended_max) ){ //If the hardware is not jiving with the recommendations
+                        CS_array[i] = NULL; //Get rid of the C/S that did not fit
+                        CS_Counter++; //if all available cross sections are exhausted, recommend a custom size.
+                        cout << "The problem with the " << report << " cross section was the gland diameter was too big\n";
+                    }
+                    if( (G_hardware_max < G_Recommended_min) ){ //If the hardware is not jiving with the recommendations
+                        CS_array[i] = NULL; //Get rid of the C/S that did not fit
+                        CS_Counter++; //if all available cross sections are exhausted, recommend a custom size.
+                        cout << "The problem with the " << report << " cross section was the gland diameter was too small\n";
+                    }
+
                 }
 
             }
+
+            if(CS_Counter > 4){
+                cout << "There is no recommended match in the AS568 O-ring sizes for this hardware.\n";
+                break;
+            }
     }
+    //Checking if parker_Recs is getting filled.
+    /*for(i=0; i<width; i++){
+        cout << "This is parker_Recs[" << i << "] : " << parker_Recs[i]<< endl;
+    }*/
 
     return;
 };
-
+;
 /*
 dash_Query:
 Input: an as568 dash size
@@ -254,3 +309,11 @@ float * dash_Query(string as568){
     return dimTol;
 };
 
+void convert_To_Metric(float* arr){
+    int i;
+    for(i=0; i < sizeof(arr); i++){
+        arr[i] = arr[i] * 25.4; //convert inches to mm
+    }
+
+    return;
+}
