@@ -33,6 +33,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Parker Oring Face Seal Design Chart 4-3.txt" />
 		<Unit filename="as568.txt" />
 		<Unit filename="main.cpp" />
 		<Extensions>

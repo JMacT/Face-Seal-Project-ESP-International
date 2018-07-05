@@ -1,10 +1,8 @@
 # depslib dependency file v1.0
-1530552378 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\main.cpp
+1530657328 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\main.cpp
 	<iostream>
 	<fstream>
-	<string>
-	<sstream>
 	<stdlib.h>
-	<cstring>
+	<string>
 	<math.h>
 
