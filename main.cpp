@@ -14,6 +14,8 @@ void convert_To_Metric(float*);
 
 int main()
 {
+    int i=0;
+
     string search; //Holds dash size required for the search
     float *as568; //a pointer to the array holding all info on a dash size. See below:
     //AS568 Format - used for hard coding all other functions using the as568 resource.
@@ -27,22 +29,23 @@ int main()
     //as568[7] : ID mm
     //as568[8] : ID Tol mm
 
-    float hardware[9]={1,0,0,1.0,.0,1.370,.0,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
+    float hardware[9];//={1,0,0,1.0,.0,1.370,.0,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
     float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
                 //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
-    //hardware_specs(hardware);//temporarily hardcoding
+    hardware_specs(hardware);//temporarily hard-coding
 
     CS_Test(hardware, CS_array);
 
-    //cout << "Which dash size do you want analyzed\n"; //choose a dash size
-    //cin >> search;
+    //Cycle through the cross sections possible. If CS_array[i] has been turned to NULL for mis-fit C/S it is ignored
+    for(i=0; i <=4 ; i++){
+        search = to_string(CS_array[i]); //Adds the dash in order to search as568.txt
 
-    //search = "-" + search; //Adds the dash in order to search as568.txt
+        if(CS_array[i] > 0){
+            as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
+        }
+    }
 
-    //as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
-
-    //cout << "The dash size to be analyzed is : " << as568[0] << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
 
     return 0;
 }
@@ -192,9 +195,6 @@ void CS_Test(float hardware[], float CS_array[]){
     L_hardware_max = hardware[7]+hardware[8]; //This is the absolute deepest the customer can cut. Compare to parker_Recs[2]
     //Minimum gland depths are dealt with in the analysis ??? CHECK THIS
 
-    cout << "Hardware gland width maximum is : " << G_hardware_max << endl;
-    cout << "Hardware gland width minimum is : " << G_hardware_min<< endl;
-    cout << "Hardware gland depth maximum is : " << L_hardware_max << endl;
 
    /* 0. Metric (0) or Imperial Measurements (1)
 1. Pressure Direction: Internal pressure (0) or External Pressure (1)
@@ -269,10 +269,6 @@ void CS_Test(float hardware[], float CS_array[]){
                 break;
             }
     }
-    //Checking if parker_Recs is getting filled.
-    /*for(i=0; i<width; i++){
-        cout << "This is parker_Recs[" << i << "] : " << parker_Recs[i]<< endl;
-    }*/
 
     return;
 };
@@ -308,7 +304,9 @@ float * dash_Query(string as568){
 
             string_to_float_array(line, dimTol, width, exit_var); //fill dimTol with floats of all the dash data
 
-            break; //Exit
+            //PUT ADVANCED ANALYSIS HERE. OUTPUT AS568[8] AND ADD IT TO SOME KIND OF LIST OF SUCCESSES AND DATA
+
+
 
         }
     }
