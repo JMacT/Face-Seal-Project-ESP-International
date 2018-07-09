@@ -2,12 +2,13 @@
 #include <fstream>
 #include <stdlib.h>
 #include <string>
+#include <vector> //for dynamic storage of acceptable o-rings
 #include <math.h> //pow
 
 using namespace std;
 
 void hardware_specs(float input_arr [] ); //cin customer hardeware specs. Output an array of those specs
-float * dash_Query(string as568); //search as568.txt for an oring size and output an array of those specs
+void dash_Query(string as568, vector<string> &oring_Fits); //search as568.txt for an oring size and output an array of those specs
 void CS_Test(float*, float*);
 void string_to_float_array(string, float*, int, int);
 void convert_To_Metric(float*);
@@ -16,7 +17,8 @@ int main()
 {
     int i=0;
 
-    string search; //Holds dash size required for the search
+    string search; //Holds dash size required for the search.
+    vector<string> oring_Fits; //Holds list of recommended dash sizes
     float *as568; //a pointer to the array holding all info on a dash size. See below:
     //AS568 Format - used for hard coding all other functions using the as568 resource.
     //as568[0] : Dash Size Callout
@@ -29,11 +31,11 @@ int main()
     //as568[7] : ID mm
     //as568[8] : ID Tol mm
 
-    float hardware[9];//={1,0,0,1.0,.0,1.370,.0,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
+    float hardware[9]={1,0,0,1.0,.0,1.370,.0,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
     float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
                 //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
-    hardware_specs(hardware);//temporarily hard-coding
+    //hardware_specs(hardware);//temporarily hard-coding
 
     CS_Test(hardware, CS_array);
 
@@ -42,8 +44,12 @@ int main()
         search = to_string(CS_array[i]); //Adds the dash in order to search as568.txt
 
         if(CS_array[i] > 0){
-            as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
+            dash_Query(search, oring_Fits); //oring_Fits is a vector that holds all dash sizes currently fitting
         }
+    }
+
+    for(const auto & value : oring_Fits){
+        cout << value << endl;
     }
 
 
@@ -169,7 +175,7 @@ void CS_Test(float hardware[], float CS_array[]){
     //Basically, get gland depth min and max from hardware
     //get groove width min and max from hardware
     //get the recommendations min and max using hardware metric/imperial, internal/external_p, liquid/gas
-    //compare and exclude some of CS_array
+    //If a cross section fails, change its address in CS_array[] to a NULL so it is ignored
 
 
     float G_Recommended_min, G_Recommended_max, G_hardware_max,G_hardware_min, L_hardware_max = 0;
@@ -276,11 +282,12 @@ void CS_Test(float hardware[], float CS_array[]){
 /*
 dash_Query:
 Input: an as568 dash size
-Function: to pull size's line from as568.txt and copy the values to an array in float form.
-Returns: The address of an array containing that dash size's data in float form.
+Function: to pull size's line from as568.txt and copy the values to an array in float form. Then, take that dash size and copy it into a growing vector of potential fits.
+
+//IMPORTANT CHANGE ***Took away the return::float and now pass a vector of correct sizes to dash_Query(). No longer need all the conversion to float as that will occur later.***
 Working? YES 7/3/18
 */
-float * dash_Query(string as568){
+void dash_Query(string as568, vector<string> &oring_Fits){
 
     string temp; //Used to fill storage and exit loop in case of \t in string "line"
     string line; //Holds info from as568.txt
@@ -300,20 +307,21 @@ float * dash_Query(string as568){
 
         if(pos!=string::npos){
 
-            cout << line << endl; //Debug -- look at data is in "line" string.
-
             string_to_float_array(line, dimTol, width, exit_var); //fill dimTol with floats of all the dash data
 
-            //PUT ADVANCED ANALYSIS HERE. OUTPUT AS568[8] AND ADD IT TO SOME KIND OF LIST OF SUCCESSES AND DATA
+            j = (dimTol[8]); //copying float::(dash size) to int::j in order to drop of extra zeros
+            temp = to_string(j); //changing j back into a string and copying to temp
 
+            //Add that dash size to the growing vector of acceptable dash sizes
+            oring_Fits.push_back(temp);
 
-
+            //***oring_Fits is now vector holding all dash sizes of the proper cross section for the hardware.****
         }
     }
 
     refOne.close(); //close as568.txt
 
-    return dimTol;
+    return;
 };
 
 void convert_To_Metric(float* arr){
