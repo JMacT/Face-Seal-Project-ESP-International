@@ -4,10 +4,14 @@
 #include <string>
 #include <vector> //for dynamic storage of acceptable o-rings
 #include <math.h> //pow
+#include <DashMath.h>
+#include <HardwareMath.h>
 
 using namespace std;
 
 void hardware_specs(float input_arr [] ); //cin customer hardeware specs. Output an array of those specs
+void hardware_specs_2(HardwareMath& gland);
+
 void dash_Query(string as568, vector<string> &oring_Fits); //search as568.txt for an oring size and output an array of those specs
 void CS_Test(float*, float*);
 void string_to_float_array(string, float*, int, int);
@@ -16,6 +20,9 @@ void convert_To_Metric(float*);
 int main()
 {
     int i=0;
+    DashMath dash(.239, .005, .070, .003);
+    HardwareMath gland;
+
 
     string search; //Holds dash size required for the search.
     vector<string> oring_Fits; //Holds list of recommended dash sizes
@@ -31,11 +38,11 @@ int main()
     //as568[7] : ID mm
     //as568[8] : ID Tol mm
 
-    float hardware[9]={1,0,0,1.0,.0,1.370,.0,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
+    float hardware[9]={1,0,0,1.0,.00,1.370,.00,1,.05}; //Customer input: Units, P_direction, Media, ID, ID_tol, OD, OD_tol, Gland_Max, Gland_tol, '\0'
     float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
                 //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
-    //hardware_specs(hardware);//temporarily hard-coding
+    hardware_specs_2(gland);//temporarily hard-coding
 
     CS_Test(hardware, CS_array);
 
@@ -48,10 +55,12 @@ int main()
         }
     }
 
-    for(const auto & value : oring_Fits){
-        cout << value << endl;
-    }
+    //cout << "The volume of this o-ring is : " << dash.getVolume() << endl;
 
+    //Debug: see what's an approved dash size so far
+    for(const auto & value : oring_Fits){
+        cout << "O-ring volume is : " << dash.getVolume() << " and hardware volume is : " << gland.getMaxVolume(0.187) << endl;
+    }
 
     return 0;
 }
@@ -104,6 +113,54 @@ Input:
 8. Gland cut tolerance
 Working? YES 7/3/18
 */
+void hardware_specs_2(HardwareMath& gland){
+    //defaults to metric dimensions
+    //defaults to liquid sealing
+    //defaults to internal pressure
+    cout << "In order to calculate your AS568 seal size, please enter your hardware dimensions : \n";
+
+    cout << "Enter 0 for METRIC measurements or enter 1 for IMERIAL measurements" << endl;
+    cin >> gland.units;
+    if( (gland.units!=1) && (gland.units!=0)){
+        cout << "Illegal entry, defaulting to METRIC\n";
+        gland.units=0;
+    }
+
+    cout << "Enter 0 for sealing a LIQUID, enter 1 for sealing a GAS" << endl;
+    cin >> gland.media;
+    if((gland.media!=0) && (gland.media!=1)){
+        cout << "Illegal entry, defaulting to LIQUID MEDIA\n";
+       gland.media=0;
+    }
+
+    cout << "Enter 0 for INTERNAL PRESSURE or enter 1 for EXTERNAL PRESSURE " << endl;
+    cin >> gland.p_direction;
+    if((gland.p_direction!=0) && (gland.p_direction!=1)){
+        cout << "Illegal entry, defaulting to INTERNAL PRESSURE\n";
+        gland.p_direction=0;
+    }
+    cout << "Enter your gland INNER DIAMETER" << endl;
+    cin >> gland.id;
+
+    cout << "Enter your INNER DIAMETER TOLERANCE" << endl;
+    cin >> gland.id_tol;
+
+    cout << "Enter your gland OUTER DIAMETER" << endl;
+    cin >> gland.od;
+
+    cout << "Enter you OUTER DIAMETER TOLERANCE" << endl;
+    cin >> gland.od_tol;
+
+    cout << "Enter your MAXIMUM ALLOWABLE GLAND DEPTH" << endl;
+    cin >> gland.gland_max;
+
+    cout << "Enter your GLAND DEPTH TOLERANCE" << endl;
+    cin >> gland.gland_tol;
+
+    return;
+
+}
+
 void hardware_specs(float input_arr []){
     //defaults to metric dimensions
     //defaults to liquid sealing
