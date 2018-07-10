@@ -14,6 +14,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -23,6 +24,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -35,7 +37,11 @@
 		</Compiler>
 		<Unit filename="Parker Oring Face Seal Design Chart 4-3.txt" />
 		<Unit filename="as568.txt" />
+		<Unit filename="includes/DashMath.h" />
+		<Unit filename="includes/HardwareMath.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/DashMath.cpp" />
+		<Unit filename="src/HardwareMath.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
