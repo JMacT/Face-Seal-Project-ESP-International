@@ -1,10 +1,12 @@
 # depslib dependency file v1.0
-1531256059 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\main.cpp
+1531339097 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\main.cpp
 	<iostream>
 	<fstream>
 	<stdlib.h>
 	<string>
 	<math.h>
+	"HardwareMath.h"
+	"DashMath.h"
 
 1531256426 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\src\dashmath.cpp
 	"..\includes\DashMath.h"
@@ -17,4 +19,12 @@
 	"..\includes\HardwareMath.h"
 
 1531257903 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\includes\hardwaremath.h
+
+1531256426 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\includes\dashmath.h
+
+1531257903 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\includes\hardwaremath.h
+
+1531338935 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\hardwaremath.h
+
+1531338928 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\dashmath.h
 

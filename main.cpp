@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string>
 #include <math.h> //pow
-#include <HardwareMath.h>
-
+#include "C:\Users\jesset\Documents\GitHub\Face Seal Recommendation App\Face-Seal-Project-ESP-International\includes\HardwareMath.h"
+#include "C:\Users\jesset\Documents\GitHub\Face Seal Recommendation App\Face-Seal-Project-ESP-International\includes\HardwareMath.h"
 using namespace std;
 
 void hardware_specs(float input_arr [] ); //cin customer hardeware specs. Output an array of those specs
