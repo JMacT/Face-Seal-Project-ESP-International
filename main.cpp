@@ -3,10 +3,16 @@
 #include <stdlib.h>
 #include <string>
 #include <math.h> //pow
+#include <HardwareMath.h>
 
 using namespace std;
 
 void hardware_specs(float input_arr [] ); //cin customer hardeware specs. Output an array of those specs
+
+
+void hardware_specs_2(HardwareMath &gland);
+
+
 float * dash_Query(string as568); //search as568.txt for an oring size and output an array of those specs
 void CS_Test(float*, float*);
 void string_to_float_array(string, float*, int, int);
@@ -14,8 +20,10 @@ void string_to_float_array(string, float*, int, int);
 
 int main()
 {
+    HardwareMath gland;
+
     string search; //Holds dash size required for the search
-    float *as568; //a pointer to the array holding all info on a dash size. See below:
+    //float *as568; //a pointer to the array holding all info on a dash size. See below:
     //AS568 Format - used for hard coding all other functions using the as568 resource.
     //as568[0] : Dash Size Callout
     //as568[1] : CS inch
@@ -46,6 +54,11 @@ int main()
 
     return 0;
 }
+
+void hardware_specs_2(HardwareMath &gland){
+
+}
+
 
 /*
 string_to_float_array
@@ -226,7 +239,6 @@ float * dash_Query(string as568){
     string line; //Holds info from as568.txt
     static float dimTol[9] = {0}; //stof directly from the string "storage" indexed by i
     size_t pos;
-    int i, j=0; //counters
     int width = 9; //Exit the loop when all 9 dimensions are filled
     int exit_var = 8; //Exit the loop when data is 8 bits long
 
