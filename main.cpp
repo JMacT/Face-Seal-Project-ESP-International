@@ -22,8 +22,8 @@ int main()
 {
     HardwareMath gland;
 
-    string search; //Holds dash size required for the search
-    //float *as568; //a pointer to the array holding all info on a dash size. See below:
+    string search = "210"; //Holds dash size required for the search
+    float *as568; //a pointer to the array holding all info on a dash size. See below:
     //AS568 Format - used for hard coding all other functions using the as568 resource.
     //as568[0] : Dash Size Callout
     //as568[1] : CS inch
@@ -46,11 +46,11 @@ int main()
     //cout << "Which dash size do you want analyzed\n"; //choose a dash size
     //cin >> search;
 
-    //search = "-" + search; //Adds the dash in order to search as568.txt
+    search = "-" + search; //Adds the dash in order to search as568.txt
 
-    //as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
+    as568 = dash_Query(search); //*as568 points to a returned array of all vals associated with as568.txt under the search term
 
-    //cout << "The dash size to be analyzed is : " << as568[0] << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
+    cout << "The dash size to be analyzed is : " << as568[0] << endl; //uses dash size to search as568.txt and get an array of floats containing dim/tols for that size
 
     return 0;
 }

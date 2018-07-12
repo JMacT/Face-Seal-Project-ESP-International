@@ -10,7 +10,7 @@ DashMath::DashMath(float a, float b, float c, float d)
     id_tol = b;
     cs = c;
     cs_tol = d;
-    std::cout << "this is a func";
+
     //ctor
 }
 
