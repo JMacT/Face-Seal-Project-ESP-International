@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1531255672 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\main.cpp
+1531417657 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\main.cpp
 	<iostream>
 	<fstream>
 	<stdlib.h>
@@ -8,20 +8,32 @@
 	<math.h>
 	<DashMath.h>
 	<HardwareMath.h>
+	<dashdata.h>
 
 1531167857 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\mathematics.h
 
 1531165839 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\mathematics.cpp
 
-1531245606 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\include\dashmath.h
+1531405554 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\include\dashmath.h
 
-1531248146 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\src\dashmath.cpp
+1531406090 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\src\dashmath.cpp
 	"DashMath.h"
 	<iostream>
 	<math.h>
 
-1531251568 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\src\hardwaremath.cpp
+1531415536 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\src\hardwaremath.cpp
 	"HardwareMath.h"
+	<iostream>
 
-1531251593 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\include\hardwaremath.h
+1531406048 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\include\hardwaremath.h
+
+1531417917 source:c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\src\dashdata.cpp
+	"dashdata.h"
+	<string>
+	<iostream>
+	<vector>
+	<fstream>
+
+1531414411 c:\users\jesset\documents\github\face seal recommendation app\face-seal-project-esp-international\include\dashdata.h
+	<vector>
 

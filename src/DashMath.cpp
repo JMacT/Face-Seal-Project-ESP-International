@@ -15,6 +15,7 @@ DashMath::DashMath(float a, float b, float c, float d)
 }
 
 //add tolerance detail?
+//confirmed works
 float DashMath::getVolume(){
     float od = 0;
     float ic, oc, big_R, little_R; //inner and outer circumference

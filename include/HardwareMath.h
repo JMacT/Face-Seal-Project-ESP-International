@@ -5,8 +5,8 @@
 class HardwareMath
 {
     public:
-        getMaxVolume(float); //Pass the gland max from Parker reqs txt into this
-        getMinVolume(float); //Pass the gland min from Parker reqs txt into this
+        float getMaxVolume(float); //Pass the gland max from Parker reqs txt into this
+        float getMinVolume(float); //Pass the gland min from Parker reqs txt into this
         int units;
         int p_direction;
         int media;

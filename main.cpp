@@ -6,13 +6,14 @@
 #include <math.h> //pow
 #include <DashMath.h>
 #include <HardwareMath.h>
+#include <dashdata.h>
 
 using namespace std;
 
 void hardware_specs(float input_arr [] ); //cin customer hardeware specs. Output an array of those specs
 void hardware_specs_2(HardwareMath& gland);
 
-void dash_Query(string as568, vector<string> &oring_Fits); //search as568.txt for an oring size and output an array of those specs
+void dash_Query(string as568, vector<int> &oring_Fits); //search as568.txt for an oring size and output an array of those specs
 void CS_Test(float*, float*);
 void string_to_float_array(string, float*, int, int);
 void convert_To_Metric(float*);
@@ -20,12 +21,15 @@ void convert_To_Metric(float*);
 int main()
 {
     int i=0;
+    int iterate_ctr = 0;
     DashMath dash(.239, .005, .070, .003);
     HardwareMath gland;
+    dashdata asobj;
 
 
     string search; //Holds dash size required for the search.
-    vector<string> oring_Fits; //Holds list of recommended dash sizes
+    vector<int> oring_Fits; //Holds list of recommended dash sizes
+    vector<float> dimtols;
     float *as568; //a pointer to the array holding all info on a dash size. See below:
     //AS568 Format - used for hard coding all other functions using the as568 resource.
     //as568[0] : Dash Size Callout
@@ -42,7 +46,7 @@ int main()
     float CS_array[]={0.07, 0.103, 0.139, 0.21, 0.275};//lists all AS568 CSs available for fitment. Because of -0xx and -9xx c/s variance, hard coding may be better option
                 //NOTE: Cannot judge the following CS sizes -001 through -003, all 2-9xxs because they are not covered by Parker recommendations: 0.056, 0.064, 0.072, 0.078, 0.082, 0.087, 0.097, 0.116, 0.118
 
-    hardware_specs_2(gland);//temporarily hard-coding
+    //hardware_specs_2(gland);//temporarily hard-coding
 
     CS_Test(hardware, CS_array);
 
@@ -57,9 +61,13 @@ int main()
 
     //cout << "The volume of this o-ring is : " << dash.getVolume() << endl;
 
-    //Debug: see what's an approved dash size so far
-    for(const auto & value : oring_Fits){
-        cout << "O-ring volume is : " << dash.getVolume() << " and hardware volume is : " << gland.getMaxVolume(0.187) << endl;
+    //go through the approved dash sizes and analyze for fit
+
+    for(vector<int>::const_iterator i = oring_Fits.begin(); i != oring_Fits.end(); ++i){
+        iterate_ctr++;
+
+        cout << "now checking dash size: " << *i << endl;
+        asobj.getdata(*i, dimtols);
     }
 
     return 0;
@@ -344,7 +352,7 @@ Function: to pull size's line from as568.txt and copy the values to an array in 
 //IMPORTANT CHANGE ***Took away the return::float and now pass a vector of correct sizes to dash_Query(). No longer need all the conversion to float as that will occur later.***
 Working? YES 7/3/18
 */
-void dash_Query(string as568, vector<string> &oring_Fits){
+void dash_Query(string as568, vector<int> &oring_Fits){
 
     string temp; //Used to fill storage and exit loop in case of \t in string "line"
     string line; //Holds info from as568.txt
@@ -367,10 +375,9 @@ void dash_Query(string as568, vector<string> &oring_Fits){
             string_to_float_array(line, dimTol, width, exit_var); //fill dimTol with floats of all the dash data
 
             j = (dimTol[8]); //copying float::(dash size) to int::j in order to drop of extra zeros
-            temp = to_string(j); //changing j back into a string and copying to temp
 
             //Add that dash size to the growing vector of acceptable dash sizes
-            oring_Fits.push_back(temp);
+            oring_Fits.push_back(j);
 
             //***oring_Fits is now vector holding all dash sizes of the proper cross section for the hardware.****
         }
